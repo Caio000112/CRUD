@@ -1,55 +1,41 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pedidos de Marmitas Fit</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reserva Hostel</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="container">
-    <h1>Pedidos de Marmitas Fit</h1>
-    
-    <form id="formularioPedido">
-      <label for="cliente">Nome do Cliente:</label>
-      <input type="text" id="cliente" required placeholder="Digite o nome completo">
+<div class="container">
+<h2>Reserva de Hostel</h2>
+<form id="reservaForm">
+<input type="text" id="nome" placeholder="Nome do hóspede" required />
+<select id="tipoQuarto">
+<option value="Compartilhado">Compartilhado</option>
+<option value="Privativo Simples">Privativo Simples</option>
+<option value="Privativo Luxo">Privativo Luxo</option>
+</select>
+<input type="number" id="diarias" placeholder="Número de diárias" min="1" required />
+<label><input type="checkbox" id="cafe" /> Café da manhã</label>
+<button type="submit">Registrar Reserva</button>
+</form>
 
-      <label for="tipoMarmita">Tipo de Marmita:</label>
-      <select id="tipoMarmita">
-        <option value="Low Carb">Low Carb</option>
-        <option value="Vegetariana">Vegetariana</option>
-        <option value="Tradicional">Tradicional</option>
-      </select>
+<table>
+<thead>
+<tr>
+<th>Hóspede</th>
+<th>Tipo</th>
+<th>Diárias</th>
+<th>Café</th>
+<th>Valor Total</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody id="tabelaReservas"></tbody>
+</table>
+</div>
 
-      <label for="quantidade">Quantidade:</label>
-      <input type="number" id="quantidade" min="1" required>
-
-      <label>Restrições alimentares:</label>
-      <div class="restricoes">
-        <label><input type="checkbox" value="Sem glúten" class="restricao"> Sem glúten</label>
-        <label><input type="checkbox" value="Sem lactose" class="restricao"> Sem lactose</label>
-      </div>
-
-      <button type="submit" class="botao-salvar">Registrar Pedido</button>
-    </form>
-
-    <section class="tabela">
-      <h2>Pedidos Registrados</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Tipo</th>
-            <th>Qtde</th>
-            <th>Restrições</th>
-            <th>Total</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="listaPedidos"></tbody>
-      </table>
-    </section>
-  </main>
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
