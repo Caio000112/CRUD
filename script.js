@@ -1,81 +1,85 @@
-document.addEventListener('DOMContentLoaded', carregarPedidos);
+const form = document.getElementById("reservaForm");
+const tabela = document.getElementById("tabelaReservas");
 
-document.getElementById('formularioPedido').addEventListener('submit', function (e) {
-  e.preventDefault();
+let editIndex = null;
 
-  const nome = document.getElementById('cliente').value;
-  const tipo = document.getElementById('tipoMarmita').value;
-  const quantidade = parseInt(document.getElementById('quantidade').value);
-  const restricoes = Array.from(document.querySelectorAll('.restricao:checked')).map(cb => cb.value);
+function calcularValor(tipo, diarias, cafe) {
+let valorDiaria = {
+"Compartilhado": 50,
+"Privativo Simples": 90,
+"Privativo Luxo": 150
+}[tipo];
 
-  let valor = quantidade * 25;
+let valor = valorDiaria * diarias;
+if (cafe) valor += 20 * diarias;
 
-  if (tipo === 'Vegetariana') valor *= 0.9;
-  if (restricoes.length > 0) valor += quantidade * 5;
+return valor;
+}
 
-  const pedido = {
-    nome,
-    tipo,
-    quantidade,
-    restricoes: restricoes.join(', '),
-    valorTotal: valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-  };
+function salvarLocalStorage(reservas) {
+localStorage.setItem("reservas", JSON.stringify(reservas));
+}
 
-  let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+function carregarReservas() {
+const reservas = JSON.parse(localStorage.getItem("reservas")) || [];
+tabela.innerHTML = "";
+reservas.forEach((r, i) => {
+const linha = document.createElement("tr");
+linha.innerHTML = `
+<td>${r.nome}</td>
+<td>${r.tipo}</td>
+<td>${r.diarias}</td>
+<td>${r.cafe ? "Sim" : "Não"}</td>
+<td>R$${r.valor.toFixed(2)}</td>
+<td>
+<button onclick="editar(${i})">Editar</button>
+<button onclick="excluir(${i})">Excluir</button>
+</td>
+`;
+tabela.appendChild(linha);
+});
+}
 
-  const editarIndice = parseInt(this.getAttribute('data-editar'));
-  if (!isNaN(editarIndice)) {
-    pedidos[editarIndice] = pedido;
-    this.removeAttribute('data-editar');
-  } else {
-    pedidos.push(pedido);
-  }
+form.addEventListener("submit", (e) => {
+e.preventDefault();
 
-  localStorage.setItem('pedidos', JSON.stringify(pedidos));
-  this.reset();
-  carregarPedidos();
+const nome = document.getElementById("nome").value;
+const tipo = document.getElementById("tipoQuarto").value;
+const diarias = parseInt(document.getElementById("diarias").value);
+const cafe = document.getElementById("cafe").checked;
+const valor = calcularValor(tipo, diarias, cafe);
+
+const novaReserva = { nome, tipo, diarias, cafe, valor };
+
+let reservas = JSON.parse(localStorage.getItem("reservas")) || [];
+
+if (editIndex !== null) {
+reservas[editIndex] = novaReserva;
+editIndex = null;
+} else {
+reservas.push(novaReserva);
+}
+
+salvarLocalStorage(reservas);
+carregarReservas();
+form.reset();
 });
 
-function carregarPedidos() {
-  const corpoTabela = document.getElementById('listaPedidos');
-  corpoTabela.innerHTML = '';
-  const pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
-
-  pedidos.forEach((p, i) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${p.nome}</td>
-      <td>${p.tipo}</td>
-      <td>${p.quantidade}</td>
-      <td>${p.restricoes}</td>
-      <td>${p.valorTotal}</td>
-      <td>
-        <button onclick="editarPedido(${i})">Editar</button>
-        <button onclick="excluirPedido(${i})">Excluir</button>
-      </td>
-    `;
-    corpoTabela.appendChild(tr);
-  });
+function editar(index) {
+const reservas = JSON.parse(localStorage.getItem("reservas")) || [];
+const r = reservas[index];
+document.getElementById("nome").value = r.nome;
+document.getElementById("tipoQuarto").value = r.tipo;
+document.getElementById("diarias").value = r.diarias;
+document.getElementById("cafe").checked = r.cafe;
+editIndex = index;
 }
 
-function editarPedido(indice) {
-  const pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
-  const p = pedidos[indice];
-
-  document.getElementById('cliente').value = p.nome;
-  document.getElementById('tipoMarmita').value = p.tipo;
-  document.getElementById('quantidade').value = p.quantidade;
-
-  document.querySelectorAll('.restricao').forEach(cb => {
-    cb.checked = p.restricoes.includes(cb.value);
-  });
-
-  document.getElementById('formularioPedido').setAttribute('data-editar', indice);
+function excluir(index) {
+let reservas = JSON.parse(localStorage.getItem("reservas")) || [];
+reservas.splice(index, 1);
+salvarLocalStorage(reservas);
+carregarReservas();
 }
 
-function excluirPedido(indice) {
-  let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
-  pedidos.splice(indice, 1);
-  localStorage.setItem('pedidos', JSON.stringify(pedidos));
-  carregarPedidos();
-}
+window.onload = carregarReservas;
